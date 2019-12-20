@@ -1,0 +1,692 @@
+/**
+ * JJTree template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
+ */
+options
+{
+  static = true;
+  UNICODE_INPUT=true;
+}
+
+PARSER_BEGIN(MaNouvGrammaire)
+package language;
+
+public class MaNouvGrammaire
+{
+  public static void main(String args [])
+  {    
+    if(args.length == 0) {
+		System.out.println("Reading from file programme.txt...");
+	    //new MaNouvGrammaire(System.in);
+	    try { 
+	  	  new MaNouvGrammaire(new java.io.FileInputStream("/Users/Tristan/eclipse-workspace/javaCC/ProjectJJTree/src/language/programme.txt"));
+	}catch(Exception e) {
+	  	System.out.println(e.getMessage());
+		return;
+    }
+  }else {
+		System.out.print("File analysis :"+args[0]);
+		try {
+			new MaNouvGrammaire(new java.io.FileInputStream(args[0]));
+		}catch(Exception e) {
+			System.out.println(e.getMessage());
+			return;
+		}
+    }
+    try{
+      SimpleNode n = MaNouvGrammaire.Start();
+      n.dump("");
+      System.out.println("Thank you.");
+    }
+    catch(Exception e){
+      System.out.println("Oops.");
+      System.out.println(e.getMessage());
+    }
+  }
+}
+
+PARSER_END(MaNouvGrammaire)
+
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+/*
+| < "//" (~[ "\n", "\r" ])*
+    (
+      "\n"
+    | "\r"
+    | "\r\n"
+    ) >*/
+| < "/*" (~[ "*" ])* "*"
+    (
+      ~[ "/" ] (~[ "*" ])* "*"
+    )*
+    "/" >
+}
+/*
+TOKEN : /* LITERALS
+{
+  < INTEGER_LITERAL :
+    < DECIMAL_LITERAL > ([ "l", "L" ])?
+  | < HEX_LITERAL > ([ "l", "L" ])?
+  | < OCTAL_LITERAL > ([ "l", "L" ])? 
+    >
+| < #DECIMAL_LITERAL : [ "1"-"9" ] ([ "0"-"9" ])* >
+| < #HEX_LITERAL : "0" [ "x", "X" ] ([ "0"-"9", "a"-"f", "A"-"F" ])+ >
+| < #OCTAL_LITERAL : "0" ([ "0"-"7" ])* >
+}
+*/
+TOKEN : /* TERM */
+{
+	< COMPARATEUR :  ">"|"<"|"="|"!="|"<="|">=" >
+	| < BOOLEEN : "true"|"false" >
+	| < START : "STARTCODE" >
+	| < END : "ENDCODE" >
+	| < ENTETE : "//" >
+	| < AFFEC : "<--" >
+	| < ENDL : ";" >
+	| < TYPE : "int" | "real" | "boolean" >
+	| < RETURN : "return" >
+	| < IF : "if" >
+	| < ELSEIF : "else if" >
+	| < ELSE : "else" >
+	| < WHILE : "while" > 
+	| < FOR : "for" >
+	| < PARSTART : "(" >
+	| < PAREND : ")" >
+	| < ACCSTART : "{" >
+	| < ACCEND : "}" >
+	| < LOG : "AND"|"OR" >
+	| < MINUS : "-" >
+	| < PLUS : "+" >
+	| < VIR : "," >
+	| < ZERO : "0" >
+	| < POINT : "." >
+	//| < SPACE : " " >
+	| < NOT : "NOT" >
+	| < COMSTART : "/*" >
+	| < COMEND : "*/" >
+	| < FUN : "FUN" >
+	| < ENDFUN : "ENDFUN" >
+}
+
+TOKEN : /* IDENTIFIERS */
+{
+  < CHIFFRE : [ "1"-"9" ] ( ["0"-"9"] )* >
+| < CHIFFREBIS : [ "0"-"9" ] ( ["0"-"9"] )* >
+| < IDENTIFIER :
+    <  ALPHABET >
+    (
+	  <  ALPHABET >
+    )* >
+| < SYMBOLE : ["*","/","%","^"] >
+| < ALPHABET : ["a"-"z", "A"-"Z"] >
+| < ALPHABETNUM : [ "0"-"9" ] >
+| < ALPHABETSPE : ["_","?",".","/",",",";",":","!","€","$","£","*","&","é","\"","'","(","-","è","ç","à",")","=","°","+","~","#","{","[","|","`","\\","^","@","]","}"] >
+
+}
+
+
+
+
+SimpleNode Start() :
+{}
+{
+  < ENTETE > < IDENTIFIER > < ENTETE > BlocDec("main") {
+    	java.util.ArrayList<Variable> listVariables = Variable.getVariables();
+    	for(Variable var : listVariables) {
+			System.out.println("Global variable "+var.getId()+" from type "+var.getType()+" created");
+    	}
+    }
+
+  	< FUN > BlocSousProgramme() {
+		java.util.ArrayList<Fonction> listFonctions = Fonction.getFonctions();
+		for(Fonction fun : listFonctions) {
+			System.out.print("Fonction "+fun.getId()+" return type "+fun.getType()+" taking ");
+			java.util.ArrayList<Parameter> listParameters = fun.getParameters();
+			for(int i=0;i<listParameters.size();i++) {
+				System.out.print(listParameters.get(i).getType()+" ");
+			}
+			System.out.println("argument(s)"+" added in the symbol table");
+    	}
+  	  }
+  	< ENDFUN > BlocPrincipal() 
+  {
+    return jjtThis;
+  }
+  < EOF >
+  
+}
+
+void Empty():
+{}
+{
+	{ }
+}
+
+void BlocDec(String scope):
+{String type; String id; Variable var; String suite; java.util.ArrayList<Variable> listOfVariables;}
+{
+	type = type(scope) id = id(scope) { /*System.out.println(id);*/ } suite = SuiteBlocDec(scope) < ENDL >{ /*System.out.println("tt");*/ }
+	{
+		if(!suite.equals(type) && !suite.equals("")) {
+			throw new RuntimeException("Incompatible types "+suite+" differs from "+type+" in "+scope);
+		}
+		var = new Variable(type,id);
+		var.setScope(scope);
+		listOfVariables = Variable.getVariables();
+		for(Variable temp : listOfVariables) {
+			if(temp.getId().equals(id)) {
+		  		if(temp.getScope().equals("main") || temp.getScope().equals(var.getScope())) {
+					throw new RuntimeException("Variable already defined in scope or beyond");
+				}
+			}
+		}
+		if(!scope.equals("main")) {
+			Fonction fun = Fonction.getFonction(scope);
+			java.util.ArrayList<Parameter> listOfParameters = fun.getParameters();
+			for(Parameter par : listOfParameters) {
+				if(par.getId().equals(id)) {
+					throw new RuntimeException("A parameter of the function "+scope+" has the same id");
+				}
+			}
+		}
+		listOfVariables.add(var);	
+	}
+	 BlocDec(scope)
+	| Empty()  
+}
+
+
+String SuiteBlocDec(String scope):
+{String type=""; }
+{
+	  < AFFEC > { if(scope.equals("main")) { /*System.out.println("grr"); }else {System.out.println(scope+"grr"); */} } type = Valeur(scope) { return type; }
+	| Empty() { return type; }
+}
+
+
+void BlocPrincipal():
+{ }
+{
+	< START > BlocInstruction("main") < END >
+}
+
+
+void BlocSousProgramme():
+{Fonction fun; }
+{
+  LOOKAHEAD(3)
+  fun = Procedure("main") { System.out.println(fun.getId()+" added"); } BlocSousProgramme()
+  | fun = Fonction("main") { System.out.println(fun.getId()+" added"); } BlocSousProgramme()
+  | Empty()
+}
+
+
+String Valeur(String scope):
+{String type;}
+{
+(
+  LOOKAHEAD(3)
+  type = ExpAr(scope) {return type;}
+| type = ExpLog(scope) {return type;}
+)
+}
+  
+void BlocInstruction(String scope):
+{ }
+{
+  Instruction(scope) BlocInstruction(scope)
+|	Empty()
+}
+
+void Instruction(String scope):
+{ }
+{
+	LOOKAHEAD(2)
+	AppelProcedure(scope)
+	| Affectation(scope)
+	| Boucle(scope)
+	| Condition(scope)
+}
+  
+
+void AppelProcedure(String scope):
+{java.util.ArrayList<String> arg; String id; java.util.ArrayList<Fonction> listFonctions = new java.util.ArrayList<Fonction>();}
+{
+  (
+	id = id(scope) < PARSTART > arg = Arg(scope) < PAREND > < ENDL >
+	{System.out.println(id+" called in "+scope);
+		listFonctions = Fonction.listOfFonctions;
+		for(Fonction temp : listFonctions) {
+			if(temp.getId().equals(id)) {
+		  		//System.out.println(id);
+				if(!temp.getType().equals("void")) {
+				  	throw new RuntimeException("Not a procedure "+scope);
+				}else {
+				  	if(temp.getParameters().size() != arg.size()) {
+						throw new RuntimeException("Procedure without same parameter length "+scope);
+				  	}
+					for(int j=0;j<temp.getParameters().size();j++) {
+						if(!temp.getParameters().get(j).getType().equals(arg.get(j))) {
+					  		//System.out.println(id);
+							throw new RuntimeException("Incompatible parameter types "+scope);
+						}
+					}
+				}return;
+			}
+		}throw new RuntimeException("Unknown procedure "+scope);
+	}
+)
+}
+
+java.util.ArrayList<String> Arg(String scope):
+{String type; java.util.ArrayList<String> arg = new java.util.ArrayList<String>();}
+{
+	(	  	type = Valeur(scope) arg = SuiteArg(scope) { arg.add(0,type); }
+		| Empty()
+	)
+	{
+		return arg;
+	}
+}
+
+java.util.ArrayList<String> SuiteArg(String scope):
+{java.util.ArrayList<String> arg = new java.util.ArrayList<String>(); }
+{
+	(	  	< VIR > arg = Arg(scope)
+		| Empty()
+	)
+	{
+		return arg;
+	}
+}
+
+void Affectation(String scope):
+{String id; String val; java.util.ArrayList<Variable> listOfVariables = new java.util.ArrayList<Variable>();}
+{
+	{/*System.out.print("affectation");*/}id =id(scope) < AFFEC > {/* System.out.println(scope+" "+id); */}val = Valeur(scope) < ENDL >
+	{
+	  listOfVariables = Variable.getVariables();
+		for(Variable var : listOfVariables) {
+		  	if(var.getId().equals(id)) { 
+				if(!var.getType().equals(val)) {
+					throw new RuntimeException("Incompatible types "+var.getType()+" differs from "+val+" in "+scope);
+				}
+				if(var.getScope().equals("main") || var.getScope().equals(scope)) {
+					return;
+				}
+			}
+		}throw new RuntimeException("Variable not declared in "+scope);
+	}
+}
+
+
+void Boucle(String scope):
+{ }
+{
+	< WHILE > < PARSTART > ExpLog(scope) < PAREND > < ACCSTART > BlocInstruction(scope) < ACCEND >
+|   < FOR > < PARSTART > < IDENTIFIER > < VIR > Entier(scope) < VIR > Entier(scope) < PAREND > < ACCSTART > BlocInstruction(scope) < ACCEND >
+  
+}
+
+
+void Condition(String scope):
+{ }
+{
+  < IF > < PARSTART > ExpLog(scope) < PAREND > < ACCSTART > BlocInstruction(scope) < ACCEND > SuiteCondition(scope)
+}
+
+
+void SuiteCondition(String scope):
+{ }
+{
+	< ELSEIF > < PARSTART > ExpLog(scope) < PAREND > < ACCSTART > BlocInstruction(scope) < ACCEND > SuiteCondition(scope)
+|  	< ELSE > < ACCSTART > BlocInstruction(scope) < ACCEND >
+| 	Empty()
+}
+
+
+String ExpAr(String scope):
+{String type; String type2 =""; }
+{
+	type = Mult(scope) ((< PLUS >|< MINUS >) type2 = Mult(scope))* //SuiteExpAr()
+	{
+	  if(!type.equals(type2) && !type2.equals("")) {
+	    	//System.out.println(type);
+			throw new RuntimeException("Types not compatible "+scope);
+		}
+	}
+	{
+		return type;
+	}
+}
+
+/*
+void SuiteExpAr(String scope):
+{ }
+{
+	(
+	  (
+		< PLUS >
+		| < MINUS >
+	  ) Mult(scope)
+	)
+	| Empty()
+}
+*/
+
+String Mult(String scope):
+{String type; String type2 ="";}
+{
+	type = Unary(scope) ( < SYMBOLE > type2 = Unary(scope))* //SuiteMult()
+	{
+		if(!type.equals(type2) && !type2.equals("")) {
+		  	//System.out.println(type);
+			throw new RuntimeException("Types not compatible "+scope);
+		}
+	}
+	{
+		return type;
+	}
+}
+
+/*
+void SuiteMult(String scope):
+{ }
+{
+	(
+		< SYMBOLE > Unary(scope)
+		| Empty() 
+	)
+}*/
+
+String Unary(String scope):
+{String type; }
+{
+  	PreUnary() type = Element(scope)
+  	{
+		return type;
+	}
+}
+
+void PreUnary():
+{ }
+{
+	< MINUS > | Empty() 
+}
+
+
+
+String Element(String scope):
+{String type; String id;java.util.ArrayList<Variable> listVariables;java.util.ArrayList<Parameter> listOfParameters;}
+{
+  LOOKAHEAD(2) type = Reel(scope) { return type; }
+| LOOKAHEAD(2) type = AppelFonction(scope) { return type; }
+| < PARSTART > type = ExpAr(scope) < PAREND > { return type; }
+| id = id(scope)
+{   listVariables = Variable.getVariables();
+			//System.out.println("var");
+			for(Variable var : listVariables) {
+				if(var.getId().equals(id) && (var.getScope().equals("main") || var.getScope().equals(scope))) {
+					if(!var.getType().equals("real") && !var.getType().equals("int")) {
+					  	//System.out.println(id);
+						throw new RuntimeException("Incompatible types "+var.getType()+" differs from real|int in "+scope);
+					}
+					return var.getType();
+				}
+			}
+			//System.out.println("par");
+			if(!scope.equals("main")) {
+				Fonction fun = Fonction.getFonction(scope);
+				//System.out.println(fun.getId());
+				//System.out.println(id);
+				for(Parameter par : fun.getParameters()) {
+				  	//System.out.println("par ="+par.getId()+" "+par.getType());
+				  	//System.out.println("id ="+id);
+				  	//System.out.println(id.equals(par.getId()));
+					if(par.getId().equals(id)) {
+					  	//System.out.println(id.equals(par.getId()));
+						if(!par.getType().equals("real") && !par.getType().equals("int")) {
+						  	//System.out.println(id);
+							throw new RuntimeException("Incompatible types "+par.getType()+" differs from real|int in "+scope);
+						}
+						/*System.out.println("return");*/return par.getType();
+					}
+				}
+			}/*System.out.println(scope);*/throw new RuntimeException("Unknown variable or parameter in scope "+scope);
+		}
+| type = Entier(scope) { return type; }
+
+}
+
+
+String AppelFonction(String scope):
+{String id; java.util.ArrayList<String> arg;java.util.ArrayList<Fonction> listFonctions = new java.util.ArrayList<Fonction>();}
+{
+	id = id(scope) < PARSTART > arg = Arg(scope) < PAREND >
+	{System.out.println(id+" called in "+scope);
+	  	listFonctions = Fonction.listOfFonctions;
+		for(Fonction temp : listFonctions) {
+			if(temp.getId().equals(id)) {
+		  		//System.out.println(id);
+				if(temp.getType().equals("void")) {
+				  	throw new RuntimeException("Not a fonction "+scope);
+				}else {
+				  	if(temp.getParameters().size() != arg.size()) {
+						throw new RuntimeException("Fonction without same parameter length "+scope);
+				  	}
+					for(int j=0;j<temp.getParameters().size();j++) {
+						if(!temp.getParameters().get(j).getType().equals(arg.get(j))) {
+					  		//System.out.println(id);
+							throw new RuntimeException("Incompatible parameter types "+scope);
+						}
+					}
+				}return temp.getType();
+			}
+		}throw new RuntimeException("Unknown fonction "+scope);
+	}
+}
+
+
+String Entier(String scope):
+{ }
+{
+  (
+    < CHIFFRE >	| < ZERO >
+	)
+	{
+	  	//System.out.println("int");
+		return "int";
+	}
+}
+
+
+String Reel(String scope):
+{ }
+{
+	Entier(scope) < POINT > SuiteReel(scope)
+	{
+	  	//System.out.println("real");
+		return "real";
+	}
+}
+
+void SuiteReel(String scope):
+{ }
+{
+	< CHIFFREBIS > | < ZERO > | < CHIFFRE >
+}
+
+
+String ExpLog(String scope):
+{String type; String type2="" ;}
+{
+	type = UnaryL(scope) (< LOG > type2 = UnaryL(scope))* //SuiteExpLog()
+	{ return type;}
+}
+
+void SuiteExpLog(String scope):
+{ }
+{
+	< LOG > UnaryL(scope) | Empty() 
+}
+
+
+String UnaryL(String scope):
+{String type;}
+{
+	type = ElementL(scope) { return type;}
+	| < NOT > < PARSTART > type = ElementL(scope) < PAREND > { return type;}
+}
+
+
+String ElementL(String scope):
+{String id; String typefun; String type;}
+{
+	type = booleen(scope) { return type;}
+	| LOOKAHEAD(3) type = Test(scope) { return type; }
+	| < PARSTART > type = ExpLog(scope) < PAREND > { return type; }
+	| LOOKAHEAD(2) typefun = AppelFonction(scope)
+		{System.out.println(typefun+ "called");
+		  if(!typefun.equals("boolean")) {
+		  		//System.out.println(typefun);
+				throw new RuntimeException("Incompatible types "+typefun+" differs from boolean in "+scope);
+			}
+			return typefun;
+		}
+	| id = id(scope)
+		{   java.util.ArrayList<Variable> listVariables = Variable.getVariables();
+			for(Variable var : listVariables) {
+				if(var.getId().equals(id) && (var.getScope().equals("main") || var.getScope().equals(scope))) {
+					if(!var.getType().equals("boolean")) {
+					  	//System.out.println(id);
+						throw new RuntimeException("Incompatible types "+var.getType()+" differs from boolean in "+scope);
+					}
+					return var.getType();
+				}
+			}
+			if(!scope.equals("main")) {
+				Fonction fun = Fonction.getFonction(scope);
+				java.util.ArrayList<Parameter> listOfParameters = fun.getParameters();
+				for(Parameter par : listOfParameters) {
+					if(par.getId().equals(id)) {
+						if(!par.getType().equals("boolean")) {
+						  	//System.out.println(id);
+							throw new RuntimeException("Incompatible types "+par.getType()+" differs from boolean in "+scope);
+						}
+						return par.getType();
+					}
+				}
+			}
+			throw new RuntimeException("Unknown variable or parameter in scope "+scope);
+		}
+}
+
+String booleen(String scope):
+{String type; }
+{
+	<  BOOLEEN >
+	{
+	  //System.out.println("boolean");
+	  return "boolean";
+	}
+}
+  
+
+String Test(String scope):
+{}
+{
+   ExpAr(scope) < COMPARATEUR > ExpAr(scope)
+   {
+	return "boolean";
+     }
+}
+
+
+
+Fonction Fonction(String scope):
+{String type; String id; java.util.ArrayList<Parameter> param; Fonction fun; String ret;}
+{
+    
+    type = type(scope) id = id(scope) < PARSTART >{System.out.println(id+" created");  fun = new Fonction(id, type);}
+		param = Param(scope) { fun.setParameters(param); Fonction.getFonctions().add(fun); for(Parameter par : fun.getParameters()) {/*System.out.println(par.getId()); */}} < PAREND >
+			< ACCSTART > Body(id) < RETURN > ret = Valeur(id) < ENDL > < ACCEND >
+				{ if(!ret.equals(type)) {
+				  	//System.out.println(id);
+					throw new RuntimeException("Return type function incompatible "+scope);
+				  }
+				}
+			{
+			  return fun;
+			}
+}
+
+String type(String scope):
+{}
+{
+  < TYPE >
+  {
+    return token.image;
+  }
+}
+
+String id(String scope):
+{ }
+{
+	< IDENTIFIER >
+	{
+		return token.image;
+	}
+}
+
+java.util.ArrayList<Parameter> Param(String scope):
+{String type; java.util.ArrayList<Parameter> list = new java.util.ArrayList<Parameter>(); String id;}
+{
+  (    type = type(scope) id = id(scope) list = SuiteParam(scope)
+    {
+      Parameter arg = new Parameter(type,id);
+      arg.setScope(scope);
+      for(Variable var : Variable.getVariables()) {
+		if(var.getScope().equals("main") && arg.getId().equals(var.getId())) {
+			throw new RuntimeException("Parameter "+id+" unsetable : global variable has the same name");
+		}
+      }
+      list.add(0,arg);
+    }
+    | Empty()
+  )
+  {
+	return list;
+  }
+}
+
+java.util.ArrayList<Parameter> SuiteParam(String scope):
+{java.util.ArrayList<Parameter> list = new java.util.ArrayList<Parameter>();}
+{
+  	(  	   < VIR > list = Param(scope) | Empty()
+  	 )
+  	{
+		return list;
+  	}
+}
+
+void Body(String scope):
+{}
+{
+   BlocDec(scope) BlocInstruction(scope)
+}
+
+Fonction Procedure(String scope):
+{String id; java.util.ArrayList<Parameter> param; Fonction fun;}
+{
+  	id = id(scope) < PARSTART >{System.out.println(id +" created");  fun = new Fonction(id, "void");}
+		param = Param(scope) { fun.setParameters(param); Fonction.getFonctions().add(fun);} < PAREND >
+			< ACCSTART > Body(id) < ACCEND >
+			{
+			  return fun;
+			}
+}
+

@@ -1,0 +1,83 @@
+//prog//
+int x = 3+4;
+float y = 5.5+6.5;
+boolean a = false;
+boolean b = false AND a;
+int z;
+int fac;
+int j = 0;
+int m  = 0;
+float r;
+boolean c = true OR 2<3;
+
+
+FUNDEC
+
+/**
+ *	this is my test comment, the next function is there to print something
+ *
+ */
+affiche(int l){
+}
+
+
+/**
+ *	would triple a  value
+ *
+ */
+int triple(int val){
+	int db;
+	db = 3*val;
+	affiche(db);
+	return db;
+}
+
+boolean TEST(boolean ASP){
+	return true OR 3<5;
+}
+
+
+/**
+ * Gets the factoriel, taken from tristan
+ *
+ */
+int factoriel(int f){
+	int db;
+	int i = 0;
+	int s = 1;
+	int n = f;
+	int temp = s;
+	int t;
+	float p = 0.5;
+	while(i<n){
+		s = s*n;
+		i = i+1;
+	}   
+	return s;
+}
+
+boolean testSeveralArgs(int argone, float argtwo, boolean argthree){
+	return true;
+}
+ENDFUNDEC
+
+main
+	affiche(x);
+	fac = factoriel(z);
+	if(fac>=7){
+		affiche(fac);
+	}else if(fac<3){
+		affiche(4);
+	}else if(fac==1){
+		affiche(1);
+	}else{
+		r = 2.5*4.1;
+	}
+	/*affiche(2.5*3);*/
+	while(j<m){
+	 j = j+1;
+	}
+    affiche(y);
+    /*affiche(factoriel(z));*/
+    
+ENDCODE
