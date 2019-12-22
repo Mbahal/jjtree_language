@@ -1,0 +1,83 @@
+Théories et Concepts des Langages de Programmation
+
+
+<Prog> = /<Identifiant>/<BlocDec>FUN<BlocSousProgramme>ENDFUN<BlocPrincipal> -> LL1
+
+
+<Alphabet> = a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z -> LL1
+<AlphabetNumérique> = 0|1|2|3|4|5|6|7|8|9 -> LL1
+<AlphabetCaractèreSpécial> = _|?|.|/|,|;|:|!|€|!|$|£|*|&|é|"|'|(|-|è|ç|à|)|=|°|+|~|#|{|[|||`|\|^|@|]|} -> LL1
+
+<Identifiant> = <Alphabet><SuiteIdentifiant> -> LL1
+<SuiteIdentifiant> = <Identifiant>|Ɛ -> LL1
+
+
+<BlocDec> = <Type> <Identifiant><SuiteBlocDec>;<BlocDec>|Ɛ -> LL1
+<SuiteBlocDec> = <--<Valeur>|Ɛ -> LL1
+
+
+<BlocPrincipal> = STARTCODE<BlocInstruction>ENDCODE -> LL1
+
+<BlocInstruction> = <Instruction><BlocInstruction>|Ɛ -> LL1
+<Instruction> = <Affectation>|<AppelProcedure>|<Boucle>|<Condition>-> LL2
+
+					
+<Affectation> = <Identifiant><--<Valeur>; -> LL1
+
+<AppelProcedure> = <Identifiant>(<Arg>); -> LL1
+
+<Arg> = <Valeur><SuiteArg>|Ɛ -> LL1
+<SuiteArg> = ,<Arg>|Ɛ -> LL1
+
+
+
+<Boucle> = while(<ExpLog>){<BlocInstruction>}|for(<Identifiant>,<Entier>,<Entier>){<BlocInstruction>} -> LL1
+
+
+<Condition> = if(<ExpLog>){<BlocInstruction>}<SuiteCondition> -> LL1
+<SuiteCondition> = else if(<ExpLog>){<BlocInstruction>}<SuiteCondition>|else{<BlocInstruction>}|Ɛ -> LL1
+
+
+<BlocSousProgramme> = <Fonction><BlocSousProgramme>|<Procedure><BlocSousProgramme>|Ɛ -> LL2
+
+<Valeur> = <ExpAr>|<ExpLog> |<ExpString> -> LL(∝)
+
+<Type> = int|real|boolean|string -> LL1
+
+<Fonction> = <Type> <Identifiant>(<Param>){<Body>return <Valeur>;} -> LL1
+<Param> = <Type> <Identifiant><SuiteParam>|Ɛ -> LL1
+<SuiteParam> = ,<Param>|Ɛ -> LL1
+<Body> = <BlocDec><BlocInstruction> -> LL1
+
+<Procedure> = <Identifiant>(<Param>){<Body>} -> LL1
+
+
+<ExpAr> = <Mult><SuiteExpAr> -> LL1
+<SuiteExpAr> = +<Mult>|-<Mult>|Ɛ -> LL1
+<Mult> = <Unary><SuiteMult> -> LL1
+<SuiteMult> = <Symbole><Unary>|Ɛ -> LL1
+<Unary> = <PreUnary><Elt> -> LL1
+<PreUnary> = -|Ɛ -> LL2
+<Elt> = <Entier>|<Reel>|(<ExpAr>)|<Identifiant>|<ExpAr>|<AppelFonction> -> LL2
+<Symbole> = *|//|/|%|^ -> LL1
+<Entier> = <Chiffre><ChiffreBis>|0 -> LL1
+<Chiffre> = 1|2|3|4|5|6|7|8|9 -> LL1
+<ChiffreBis> = 0|1|2|3|4|5|6|7|8|9|Ɛ -> LL2
+<Reel> = <Entier>.<ReelBis> -> LL1
+<ReelBis> = <ChiffreBis><ReelBis>|0 -> LL2
+
+
+<AppelFonction> = <Identifiant>(<Arg>) -> LL1
+
+
+<ExpLog> = <UnaryL><SuiteExpLog> -> LL1
+<SuiteExpLog> = AND<UnaryL>|OR<UnaryL>|Ɛ -> LL1
+<UnaryL> = <EltL>|NOT(<EltL>) -> LL2
+<EltL> = true|false|<Test>|(<ExpLog>)|<Identifiant>|<ExpLog>|<AppelFonction> -> LL2
+<Test> = <ExpAr><Comparateur><ExpAr> -> LL1
+<Comparateur> = >|<|=|!=|<=|>= -> LL1
+
+
+<ExpString> = <string><SuiteExpString>
+<SuiteExpString> = +<string>|Ɛ
+<string> = <ExpString>|<Identifiant>|<AppelFonction>

@@ -1,0 +1,97 @@
+//Prog//
+
+
+int x <-- 3+4*8/2-1;
+real y <-- 5.5+6.5;
+boolean a <-- false;
+boolean b <-- true AND a;
+string str <-- "test"+"verif";
+string strstr <-- "tt"+str;
+int z;
+int fac;
+real r;
+string ppp;
+
+FUN
+
+/**
+ *	Prints a value
+ *
+ */
+affiche(int l){
+}
+
+
+/**
+ *	Doubles a value
+ *
+ */
+int double(int val){
+	int db;
+	db <-- 2*val;
+	affiche(db);
+	return db;
+}
+
+boolean TEST(boolean ASP){
+	return true OR 3<5;
+}
+
+
+/**
+ * Gets the factoriel
+ *
+ */
+int factoriel(int f){
+	int db;
+	int i <-- 0;
+	int s <-- 1;
+	int n <-- f;
+	int temp <-- s;
+	int t;
+	real p <-- 0.5;
+	while(i<n){
+		s <-- s*n;
+		i <-- i+1;
+		n <-- n-1;
+	}
+	t <-- 1+4^5;
+	t <-- 1+t^5;
+	return s;
+}
+
+boolean test(int gr, real grr, boolean grrr){
+	return true;
+}
+
+
+string st(boolean bb, int pm){
+	string m <-- "rr";
+	
+	return "trop"+m+"peu";
+}
+
+
+ENDFUN
+
+STARTCODE
+	/* Instructions */
+	affiche(x);
+	
+	z <-- double(double(x));
+	
+	
+	fac <-- factoriel(z);
+	
+	if(fac>=7){
+		affiche(fac);
+	}else if(fac<3){
+		affiche(4);
+	}else if(fac=1){
+		affiche(1);
+	}else{
+		r <-- 2.5*4.1;
+	}
+
+
+ENDCODE
