@@ -1,15 +1,24 @@
 /**
  * JJTree template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
- */options{  static = true;
-  UNICODE_INPUT=true;}PARSER_BEGIN(grammar)package language;
+ */
+options
+{
+  static = true;
+  UNICODE_INPUT=true;
+}
 
-public class grammar{  public static void main(String args [])
+PARSER_BEGIN(grammar)
+package language;
+
+public class grammar
+{
+  public static void main(String args [])
   {    
     if(args.length == 0) {
 		java.nio.file.Path currentRelativePath = java.nio.file.Paths.get("");
-		String path = currentRelativePath.toAbsolutePath().toString()+"\\src\\language\\program.txt";
+		String path = currentRelativePath.toAbsolutePath().toString()+"\\src\\language\\program.language";
       
-		System.out.println("Reading from file programme.txt...");
+		System.out.println("Reading from file programme.language...");
 	    //new grammar(System.in);
 	    try { 
 	  	  new grammar(new java.io.FileInputStream(path));
@@ -36,7 +45,11 @@ public class grammar{  public static void main(String args [])
       System.out.println(e.getMessage());
     }
   }
-}PARSER_END(grammar)SKIP :
+}
+
+PARSER_END(grammar)
+
+SKIP :
 {
   " "
 | "\t"
@@ -114,7 +127,7 @@ TOKEN : /* IDENTIFIERS */
 | < SYMBOLE : ["*","/","%","^"] >
 | < ALPHABET : ["a"-"z", "A"-"Z"] >
 | < ALPHABETNUM : [ "0"-"9" ] >
-| < ALPHABETSPE : ["_","?",".","/",",",";",":","!","€","$","£","*","&","é","\"","'","(","-","è","ç","à",")","=","°","+","~","#","{","[","|","`","\\","^","@","]","}"] >
+| < ALPHABETSPE : ["_","?",".","/",",",";",":","!","â‚¬","$","Â£","*","&","Ã©","\"","'","(","-","Ã¨","Ã§","Ã ",")","=","Â°","+","~","#","{","[","|","`","\\","^","@","]","}"] >
 
 }
 
